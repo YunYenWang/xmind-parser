@@ -12,9 +12,6 @@ import java.util.zip.ZipInputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class XMindParser {
 
 	ObjectMapper jackson;
@@ -24,14 +21,14 @@ public class XMindParser {
 	}
 	
 	public Node parse(File file) throws IOException {
-		try (var fis = new FileInputStream(file)) {
-			var zis = new ZipInputStream(fis);
+		try (FileInputStream fis = new FileInputStream(file)) {
+			ZipInputStream zis = new ZipInputStream(fis);
 			
 			ZipEntry ze;
 			while ((ze = zis.getNextEntry()) != null) {
-				var name = ze.getName();
+				String name = ze.getName();
 				if ("content.json".equals(name)) {
-					var reader = new InputStreamReader(zis, "UTF-8");
+					Reader reader = new InputStreamReader(zis, "UTF-8");
 					
 					return parse(reader);
 				}
@@ -42,26 +39,24 @@ public class XMindParser {
 	}
 	
 	Node parse(Reader reader) throws IOException {
-		var sheets = jackson.readValue(reader, Map[].class);
-		for (var sheet : sheets) {
-			var root = (Map<?, ?>) sheet.get("rootTopic");
+		Map<?, ?>[] sheets = jackson.readValue(reader, Map[].class);
+		for (Map<?, ?> sheet : sheets) {
+			Map<?, ?> root = (Map<?, ?>) sheet.get("rootTopic");
 			
-			var node = trace(root);
-
-			return node;
+			return trace(root);
 		}
 		
 		return null;
 	}
 	
 	Node trace(Map<?, ?> topic) {
-		var node = new Node();
+		Node node = new Node();
 		node.setTitle((String) topic.get("title"));
-		var children = (Map<?, ?>) topic.get("children");
+		Map<?, ?> children = (Map<?, ?>) topic.get("children");
 		if (children != null) {
-			var ts = (List<Map<?, ?>>) children.get("attached");
-			for (var t : ts) {
-				var child = trace(t);
+			List<Map<?, ?>> ts = (List<Map<?, ?>>) children.get("attached");
+			for (Map<?, ?> t : ts) {
+				Node child = trace(t);
 				node.getChildren().add(child);
 			}
 		}

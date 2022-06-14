@@ -13,13 +13,13 @@ public class XMindParserTest {
 
 	@Test
 	void test() throws Exception {
-		var parser = new XMindParser();
+		XMindParser parser = new XMindParser();
 		
-		var file = new File("C:/users/ricky/OneDrive/文件/xxx.xmind");
+		File file = new File("C:/users/ricky/OneDrive/文件/xxx.xmind");
 
-		var node = parser.parse(file);
+		Node node = parser.parse(file);
 		
-		var pw = new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"));
+		PrintWriter pw = new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"));
 		
 		dump(pw, node, 0);
 		pw.flush();
@@ -31,7 +31,7 @@ public class XMindParserTest {
 		}
 		
 		pw.println(node.title);
-		for (var child : node.getChildren()) {
+		for (Node child : node.getChildren()) {
 			dump(pw, child, level + 1);
 		}
 	}
